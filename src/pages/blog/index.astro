@@ -1,8 +1,9 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { sanity, blogListQuery } from '../../lib/sanity.ts';
+import { sanity, blogListQuery } from '../../lib/sanity';
+import type { PostListItem } from '../../types/content';
 
-const posts = await sanity.fetch(blogListQuery).catch(() => []);
+const posts = (await sanity.fetch(blogListQuery).catch(() => [])) as PostListItem[];
 ---
 <BaseLayout title="Blog — Firecast">
   <h1>Blog</h1>
@@ -10,13 +11,16 @@ const posts = await sanity.fetch(blogListQuery).catch(() => []);
     <p>No posts yet. Connect Sanity to show content.</p>
   ) : (
     <ul>
-      {posts.map((p) => (
+      {posts.map(({ slug, title, publishedAt, excerpt }) => (
         <li>
-          <a href={`/blog/${p.slug}`}>{p.title}</a>
-          <div style="color:#6b7c95;font-size:14px">{new Date(p.publishedAt).toLocaleDateString()}</div>
-          <p>{p.excerpt || ''}</p>
+          <a href={`/blog/${slug}`}>{title}</a>
+          <div style="color:#6b7c95;font-size:14px">
+            {publishedAt ? new Date(publishedAt).toLocaleDateString() : ''}
+          </div>
+          <p>{excerpt || ''}</p>
         </li>
       ))}
     </ul>
   )}
 </BaseLayout>
+

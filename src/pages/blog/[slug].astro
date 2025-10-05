@@ -1,20 +1,38 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { sanity, blogPostQuery } from '../../lib/sanity.ts';
+import { sanity, blogPostQuery } from '../../lib/sanity';
 import { toHTML } from '@portabletext/to-html';
+import type { PortableTextBlock } from '@portabletext/types';
+import type { SlugDoc, Post } from '../../types/content';
+
+// Build-time routes
+export async function getStaticPaths() {
+  const docs = (await sanity
+    .fetch(`*[_type == "post" && defined(slug.current)]{ "slug": slug.current }`)
+    .catch(() => [])) as SlugDoc[];
+
+  return docs.map(({ slug }) => ({ params: { slug } }));
+}
 
 const { slug } = Astro.params;
-const post = await sanity.fetch(blogPostQuery, { slug }).catch(() => null);
+const post = (await sanity.fetch(blogPostQuery, { slug }).catch(() => null)) as Post | null;
+
+// ✅ Normalise body to an array of PortableTextBlock
+const blocks: PortableTextBlock[] = Array.isArray(post?.body) ? (post!.body as PortableTextBlock[]) : [];
+const html = toHTML(blocks);
 ---
 <BaseLayout title={post ? `${post.title} — Firecast` : 'Post — Firecast'}>
   {post ? (
     <>
       <p class="badge">Blog</p>
       <h1>{post.title}</h1>
-      <div style="color:#6b7c95;font-size:14px">{new Date(post.publishedAt).toLocaleDateString()}</div>
-      <div class="article" set:html={toHTML(post.body || [])} />
+      <div style={{ color: "#6b7c95", fontSize: "14px" }}>
+        {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : ""}
+      </div>
+      <div class="article" set:html={html} />
     </>
   ) : (
     <p>Post not found.</p>
   )}
 </BaseLayout>
+

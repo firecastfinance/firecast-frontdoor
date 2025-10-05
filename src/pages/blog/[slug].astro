@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { sanity, blogPostQuery } from '../../lib/sanity.ts';
+import { toHTML } from '@portabletext/to-html';
+
+const { slug } = Astro.params;
+const post = await sanity.fetch(blogPostQuery, { slug }).catch(() => null);
+---
+<BaseLayout title={post ? `${post.title} — Firecast` : 'Post — Firecast'}>
+  {post ? (
+    <>
+      <p class="badge">Blog</p>
+      <h1>{post.title}</h1>
+      <div style="color:#6b7c95;font-size:14px">{new Date(post.publishedAt).toLocaleDateString()}</div>
+      <div class="article" set:html={toHTML(post.body || [])} />
+    </>
+  ) : (
+    <p>Post not found.</p>
+  )}
+</BaseLayout>

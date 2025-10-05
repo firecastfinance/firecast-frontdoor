@@ -1,0 +1,31 @@
+---
+const { title = 'Firecast Finance', description = 'Plan your retirement with confidence — realistic Monte Carlo simulations for UK savers and the FIRE community.' } = Astro.props;
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/styles/global.css" />
+  </head>
+  <body>
+    <nav class="container">
+      <div class="brand">🔥 Firecast <span style="opacity:.6">Finance</span></div>
+      <div class="links">
+        <a href="/why-firecast">Why Firecast</a>
+        <a href="/blog">Blog</a>
+        <a class="btn" href="https://app.firecastfinance.com">Open the app</a>
+      </div>
+    </nav>
+    <main class="container">
+      <slot />
+    </main>
+    <footer>
+      <div class="container">
+        © {new Date().getFullYear()} Firecast Finance · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a>
+      </div>
+    </footer>
+  </body>
+</html>
